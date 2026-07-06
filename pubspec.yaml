@@ -1,0 +1,25 @@
+name: parking_ops_app
+description: Parking Operations - Flutter conversion of HTML/Tailwind mockups.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10+1
+  # NOTE: google_fonts intentionally removed — it pulls in path_provider,
+  # a plugin with native Windows code that requires Developer Mode /
+  # symlink support to build. flutter_svg is pure Dart and has no such
+  # requirement, so this project now builds on Windows desktop without
+  # enabling Developer Mode.
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
