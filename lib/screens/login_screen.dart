@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_header.dart';
+import '../services/mock_api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +16,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _usernameFocus = FocusNode();
   final _passwordFocus = FocusNode();
+  
+  // Updated to initialize the mock service and state variables
+  final _apiService = MockApiService();
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -32,9 +38,42 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  // Updated logic to simulate device validation and dummy authentication
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      // 1. Simulate Zero Trust Device Check
+      bool isDeviceValid = await _apiService.validateDeviceStatus();
+      if (!isDeviceValid) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "Zero Trust Alert: Unrecognized device.";
+        });
+        return;
+      }
+
+      // Simulate Authentication
+      String? error = await _apiService.login(
+        _usernameController.text, 
+        _passwordController.text
+      );
+
+      setState(() => _isLoading = false);
+
+      // Navigate if successful, otherwise show error
+      if (error == null) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/dashboard');
+        }
+      } else {
+        setState(() {
+          _errorMessage = error;
+        });
+      }
     }
   }
 
@@ -48,10 +87,10 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             children: [
-              const SizedBox(height: 64), // pt-16
+              const SizedBox(height: 64), 
               // Logo placeholder
-              const SizedBox(height: 128), // h-32
-              const SizedBox(height: 48), // mb-12
+              const SizedBox(height: 128), 
+              const SizedBox(height: 48), 
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 384),
                 child: Form(
@@ -59,6 +98,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Text(
+                        "Device ID: ${_apiService.deviceId}", 
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
                       _field(
                         label: 'USERNAME',
                         controller: _usernameController,
@@ -72,34 +117,49 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusNode: _passwordFocus,
                         obscure: true,
                       ),
+                      
+                      // Error message display for handling
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!, 
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                      
                       const SizedBox(height: 24),
+                      
+                      // Updated for a ;oading indicator
                       SizedBox(
                         height: 48,
-                        child: ElevatedButton(
-                          onPressed: _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.black,
-                            foregroundColor: AppColors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
+                        child: _isLoading 
+                          ? const Center(child: CircularProgressIndicator(color: AppColors.black))
+                          : ElevatedButton(
+                              onPressed: _handleLogin,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.black,
+                                foregroundColor: AppColors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ).copyWith(
+                                backgroundColor: WidgetStateProperty.resolveWith(
+                                  (states) => states.contains(WidgetState.pressed) ||
+                                          states.contains(WidgetState.hovered)
+                                      ? Colors.grey.shade800
+                                      : AppColors.black,
+                                ),
+                              ),
+                              child: const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ).copyWith(
-                            backgroundColor: WidgetStateProperty.resolveWith(
-                              (states) => states.contains(WidgetState.pressed) ||
-                                      states.contains(WidgetState.hovered)
-                                  ? Colors.grey.shade800
-                                  : AppColors.black,
-                            ),
-                          ),
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -118,6 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required FocusNode focusNode,
     required bool obscure,
   }) {
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
