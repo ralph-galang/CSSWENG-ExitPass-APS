@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_header.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../services/mock_api_service.dart'; 
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,7 +16,7 @@ class SettingsScreen extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/tickets');
         break;
       case 2:
-        break; // already here
+        break; 
     }
   }
 
@@ -45,6 +46,9 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // To access the mock API service to get dynamic dummy data
+    final apiService = MockApiService();
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const AppHeader(triangleSize: 20),
@@ -61,16 +65,18 @@ class SettingsScreen extends StatelessWidget {
             children: [
               // ---------- Device Information ----------
               _sectionHeader('Device Information'),
-              _infoRow('Device ID', '673132'),
-              _infoRow('Location', 'SM Megamall'),
+              _infoRow('Device ID', apiService.deviceId),
+              _infoRow('Location', apiService.assignedSiteId),
+              _infoRow('Site Group', apiService.siteGroupId),
               const SizedBox(height: 8),
 
               // ---------- Account Information ----------
               _sectionHeader('Account Information'),
-              _infoRow('Name', 'Darwin Pasco'),
-              _infoRow('Role', 'Top G'),
+              // Use dynamic user role from the login session
+              _infoRow('Name', 'Test Operator'), // Placeholder name
+              _infoRow('Role', apiService.currentUserRole ?? 'Not Logged In'),
               _infoRow('Contact No.', '123456789'),
-              _infoRow('Email Address', 'darwin.pasco@mail'),
+              _infoRow('Email Address', 'operator@exitpass.com'),
               const SizedBox(height: 8),
 
               // ---------- Logout ----------
@@ -78,6 +84,9 @@ class SettingsScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
+                    // Used toCall the mock logout function to clear session
+                    apiService.logout();
+                    
                     Navigator.pushNamedAndRemoveUntil(
                       context, '/login', (route) => false,
                     );
