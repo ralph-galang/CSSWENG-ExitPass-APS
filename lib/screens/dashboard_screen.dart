@@ -4,9 +4,17 @@ import '../widgets/app_header.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/transaction_list_item.dart';
+import '../services/mock_api_service.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final _apiService = MockApiService();
 
   static const _transactions = [
     {'dateTime': '05/26/2026 - 8:30 PM', 'plate': 'AAO 2311'},
@@ -17,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
   void _onNavTap(BuildContext context, int index) {
     switch (index) {
       case 0:
-        break; // already here
+        break; 
       case 1:
         Navigator.pushReplacementNamed(context, '/tickets');
         break;
@@ -25,6 +33,12 @@ class DashboardScreen extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/settings');
         break;
     }
+  }
+
+  // Function to simulate capturing a transaction offline
+  void _simulateCapture() async {
+    await _apiService.submitMockTransaction();
+    setState(() {}); // Refresh UI to show increased queue number
   }
 
   @override
@@ -36,40 +50,68 @@ class DashboardScreen extends StatelessWidget {
         currentIndex: 0,
         onTap: (i) => _onNavTap(context, i),
       ),
+      
+      // Updated for a floating action button for your demo to trigger mock transactions
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _simulateCapture,
+        backgroundColor: AppColors.black,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text("Capture MoPS Record", style: TextStyle(color: Colors.white)),
+      ),
+      
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ---------- Alert Banner ----------
-              Container(
-                color: AppColors.alertRed,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                child: Row(
-                  children: [
-                    const AppIcon(svg: AppIcons.warning, size: 24, color: AppColors.white),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'SYSTEM DEGRADED: CONTINUITY MODE ACTIVE',
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          letterSpacing: 0.6,
+              
+              // The red banner now dynamically shows/hides based on mock network status
+              if (!_apiService.isOnline)
+                Container(
+                  color: AppColors.alertRed,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Row(
+                    children: [
+                      const AppIcon(svg: AppIcons.warning, size: 24, color: AppColors.white),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'SYSTEM DEGRADED: CONTINUITY MODE ACTIVE',
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 0.6,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    
+                    // Toggle switch to let you easily show online vs offline mode in your demo
+                    SwitchListTile(
+                      title: const Text('Simulate Network Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(_apiService.isOnline ? 'Online (Connected)' : 'Offline (Disconnected)'),
+                      value: _apiService.isOnline,
+                      onChanged: (val) {
+                        setState(() {
+                          _apiService.isOnline = val;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      activeColor: Colors.green,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 12),
+
                     // ---------- Title ----------
                     const Text(
                       'Continuity Dashboard',
@@ -81,8 +123,7 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Central Hub for offline transaction logging and lane '
-                      'recovery management.',
+                      'Central Hub for offline transaction logging and lane recovery management.',
                       style: TextStyle(
                         fontSize: 15,
                         color: AppColors.gray600,
@@ -123,9 +164,10 @@ class DashboardScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          const Text(
-                            '42',
-                            style: TextStyle(
+                          Text(
+                            // [NEW] Replaced hardcoded "42" with dynamic counter
+                            '${_apiService.unsyncedRecords}',
+                            style: const TextStyle(
                               color: AppColors.white,
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
