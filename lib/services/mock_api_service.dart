@@ -11,7 +11,7 @@ class MockApiService {
   final String siteGroupId = "MNT";
 
   // Mock Offline/Online State
-  bool isOnline = true; 
+  bool isOnline = false;
   int unsyncedRecords = 3; 
 
   // Mock User Session

@@ -88,9 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 64), 
-              // Logo placeholder
-              const SizedBox(height: 128), 
-              const SizedBox(height: 48), 
+              Image.asset(
+                'lib/images/Professional Parking group Logo.jpg',
+                height: 90,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 32),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 384),
                 child: Form(

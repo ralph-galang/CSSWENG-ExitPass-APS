@@ -95,23 +95,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    
-                    // Toggle switch to let you easily show online vs offline mode in your demo
-                    SwitchListTile(
-                      title: const Text('Simulate Network Status', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(_apiService.isOnline ? 'Online (Connected)' : 'Offline (Disconnected)'),
-                      value: _apiService.isOnline,
-                      onChanged: (val) {
-                        setState(() {
-                          _apiService.isOnline = val;
-                        });
-                      },
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: Colors.green,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 12),
-
                     // ---------- Title ----------
                     const Text(
                       'Continuity Dashboard',
@@ -133,55 +116,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 24),
 
                     // ---------- Pending Sync Card ----------
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.navyCard,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Pending Sync',
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/sync-transactions');
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.navyCard,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Pending Sync',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              // [NEW] Replaced hardcoded "42" with dynamic counter
+                              '${_apiService.unsyncedRecords}',
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            // [NEW] Replaced hardcoded "42" with dynamic counter
-                            '${_apiService.unsyncedRecords}',
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Transactions queued for server upload',
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 14,
+                            const SizedBox(height: 4),
+                            Text(
+                              'Transactions queued for server upload',
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 40),
