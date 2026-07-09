@@ -35,12 +35,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // Function to simulate capturing a transaction offline
-  void _simulateCapture() async {
-    await _apiService.submitMockTransaction();
-    setState(() {}); // Refresh UI to show increased queue number
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,14 +43,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 0,
         onTap: (i) => _onNavTap(context, i),
-      ),
-      
-      // Updated for a floating action button for your demo to trigger mock transactions
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _simulateCapture,
-        backgroundColor: AppColors.black,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text("Capture MoPS Record", style: TextStyle(color: Colors.white)),
       ),
       
       body: SafeArea(
