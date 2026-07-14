@@ -12,7 +12,24 @@ class MockApiService {
 
   // Mock Offline/Online State
   bool isOnline = false;
-  int unsyncedRecords = 3; 
+
+  // Recent Transactions History (Dashboard) - persists throughout the session
+  final List<Map<String, String>> _history = [
+    {'dateTime': '05/26/2026 - 8:30 PM', 'plate': 'AAO 2311'},
+    {'dateTime': '05/26/2026 - 8:33 PM', 'plate': 'BAO 2501'},
+    {'dateTime': '05/26/2026 - 8:47 PM', 'plate': 'LOL 2322'},
+  ];
+
+  // Sync Queue (Sync Screen) - cleared after syncing
+  final List<Map<String, String>> _syncQueue = [
+    {'dateTime': '05/26/2026 - 8:30 PM', 'plate': 'AAO 2311'},
+    {'dateTime': '05/26/2026 - 8:33 PM', 'plate': 'BAO 2501'},
+    {'dateTime': '05/26/2026 - 8:47 PM', 'plate': 'LOL 2322'},
+  ];
+
+  List<Map<String, String>> get history => List.unmodifiable(_history);
+  List<Map<String, String>> get syncQueue => List.unmodifiable(_syncQueue);
+  int get unsyncedRecords => _syncQueue.length;
 
   // Mock User Session
   String? currentUserRole;
@@ -45,10 +62,21 @@ class MockApiService {
     sessionToken = null;
   }
 
+  // Adds a new transaction to both history and sync queue
+  void addTransaction(Map<String, String> transaction) {
+    _history.insert(0, transaction);
+    _syncQueue.insert(0, transaction);
+  }
+
+  // Clears only the sync queue
+  Future<void> syncAll() async {
+    await Future.delayed(const Duration(seconds: 2));
+    _syncQueue.clear();
+  }
+
   // Simulates saving a transaction locally when offline
   Future<bool> submitMockTransaction() async {
     if (!isOnline) {
-      unsyncedRecords++;
       return true; 
     }
     await Future.delayed(const Duration(seconds: 1)); 

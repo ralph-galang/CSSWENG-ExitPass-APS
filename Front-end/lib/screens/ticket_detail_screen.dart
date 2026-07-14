@@ -98,7 +98,9 @@ class TicketDetailScreen extends StatelessWidget {
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/tickets');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.black,
                     foregroundColor: AppColors.white,

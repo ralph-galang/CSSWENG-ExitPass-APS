@@ -3,6 +3,7 @@ import '../theme/app_colors.dart';
 import '../widgets/app_header.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../services/mock_api_service.dart';
 
 class ManualTransactionScreen extends StatefulWidget {
   const ManualTransactionScreen({super.key});
@@ -13,6 +14,7 @@ class ManualTransactionScreen extends StatefulWidget {
 }
 
 class _ManualTransactionScreenState extends State<ManualTransactionScreen> {
+  final _apiService = MockApiService();
   String _reasonCode = 'System Down';
   final _ticketController = TextEditingController();
   final _plateController = TextEditingController();
@@ -197,7 +199,21 @@ class _ManualTransactionScreenState extends State<ManualTransactionScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/tickets');
+                    // Capture the new transaction data
+                    final newTransaction = {
+                      'dateTime': _dateController.text.isEmpty 
+                          ? '05/26/2026 - 9:00 PM' // Fallback for demo
+                          : _dateController.text,
+                      'plate': _plateController.text.isEmpty 
+                          ? 'NEW-PLATE' 
+                          : _plateController.text,
+                    };
+
+                    // Save to the in-memory mock service
+                    _apiService.addTransaction(newTransaction);
+
+                    // Navigate back to the dashboard to see the update
+                    Navigator.pushReplacementNamed(context, '/dashboard');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.black,
