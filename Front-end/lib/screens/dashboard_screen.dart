@@ -16,12 +16,6 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final _apiService = MockApiService();
 
-  static const _transactions = [
-    {'dateTime': '05/26/2026 - 8:30 PM', 'plate': 'AAO 2311'},
-    {'dateTime': '05/26/2026 - 8:33 PM', 'plate': 'BAO 2501'},
-    {'dateTime': '05/26/2026 - 8:47', 'plate': 'LOL 2322'},
-  ];
-
   void _onNavTap(BuildContext context, int index) {
     switch (index) {
       case 0:
@@ -35,12 +29,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // Function to simulate capturing a transaction offline
-  void _simulateCapture() async {
-    await _apiService.submitMockTransaction();
-    setState(() {}); // Refresh UI to show increased queue number
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,14 +39,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onTap: (i) => _onNavTap(context, i),
       ),
       
-      // Updated for a floating action button for your demo to trigger mock transactions
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _simulateCapture,
-        backgroundColor: AppColors.black,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text("Capture MoPS Record", style: TextStyle(color: Colors.white)),
-      ),
-      
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
@@ -66,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               
-              // The red banner now dynamically shows/hides based on mock network status
+              // The red banner is now permanently active because we are forced offline
               if (!_apiService.isOnline)
                 Container(
                   color: AppColors.alertRed,
@@ -95,23 +75,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    
-                    // Toggle switch to let you easily show online vs offline mode in your demo
-                    SwitchListTile(
-                      title: const Text('Simulate Network Status', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(_apiService.isOnline ? 'Online (Connected)' : 'Offline (Disconnected)'),
-                      value: _apiService.isOnline,
-                      onChanged: (val) {
-                        setState(() {
-                          _apiService.isOnline = val;
-                        });
-                      },
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: Colors.green,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 12),
-
                     // ---------- Title ----------
                     const Text(
                       'Continuity Dashboard',
@@ -134,9 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                     // ---------- Pending Sync Card ----------
                     Container(
-                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.navyCard,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -146,42 +107,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Pending Sync',
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                      child: Material(
+                        color: AppColors.navyCard,
+                        borderRadius: BorderRadius.circular(12),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/sync-transactions');
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Pending Sync',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            // [NEW] Replaced hardcoded "42" with dynamic counter
-                            '${_apiService.unsyncedRecords}',
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
+                                const SizedBox(height: 24),
+                                Text(
+                                  '${_apiService.unsyncedRecords}',
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Transactions queued for server upload',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Transactions queued for server upload',
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -205,11 +178,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       clipBehavior: Clip.antiAlias,
                       child: Column(
                         children: [
-                          for (int i = 0; i < _transactions.length; i++)
+                          for (int i = 0; i < _apiService.history.length; i++)
                             TransactionListItem(
-                              dateTime: _transactions[i]['dateTime']!,
-                              plate: _transactions[i]['plate']!,
-                              showBottomBorder: i != _transactions.length - 1,
+                              dateTime: _apiService.history[i]['dateTime']!,
+                              plate: _apiService.history[i]['plate']!,
+                              showBottomBorder: i != _apiService.history.length - 1,
                             ),
                         ],
                       ),

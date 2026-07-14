@@ -42,7 +42,7 @@ class TransactionListItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: AppIcon(svg: AppIcons.clock, size: 20, color: AppColors.gray900),
+                child: AppIcon(svg: AppIcons.history, size: 20, color: AppColors.gray900),
               ),
             ),
             Expanded(

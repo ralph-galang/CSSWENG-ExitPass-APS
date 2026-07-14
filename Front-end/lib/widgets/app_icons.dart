@@ -49,6 +49,13 @@ class AppIcons {
   <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>''';
 
+  // History icon (clock with arrow)
+  static const history = '''
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M3 3v5h5M12 7v5l4 2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>''';
+
   // Chevron right (fill based)
   static const chevronRight = '''
 <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="black">
