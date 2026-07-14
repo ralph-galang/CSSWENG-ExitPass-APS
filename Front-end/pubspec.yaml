@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10+1
+  http: ^1.2.2
   # NOTE: google_fonts intentionally removed — it pulls in path_provider,
   # a plugin with native Windows code that requires Developer Mode /
   # symlink support to build. flutter_svg is pure Dart and has no such
@@ -23,6 +24,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - lib/images/Professional Parking group Logo.jpg

@@ -35,6 +35,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Function to simulate capturing a transaction offline
+  void _simulateCapture() async {
+    await _apiService.submitMockTransaction();
+    setState(() {}); // Refresh UI to show increased queue number
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +49,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 0,
         onTap: (i) => _onNavTap(context, i),
+      ),
+      
+      // Updated for a floating action button for your demo to trigger mock transactions
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _simulateCapture,
+        backgroundColor: AppColors.black,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text("Capture MoPS Record", style: TextStyle(color: Colors.white)),
       ),
       
       body: SafeArea(
@@ -81,6 +95,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    
+                    // Toggle switch to let you easily show online vs offline mode in your demo
+                    SwitchListTile(
+                      title: const Text('Simulate Network Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(_apiService.isOnline ? 'Online (Connected)' : 'Offline (Disconnected)'),
+                      value: _apiService.isOnline,
+                      onChanged: (val) {
+                        setState(() {
+                          _apiService.isOnline = val;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      activeColor: Colors.green,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 12),
+
                     // ---------- Title ----------
                     const Text(
                       'Continuity Dashboard',
@@ -102,61 +133,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 24),
 
                     // ---------- Pending Sync Card ----------
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/sync-transactions');
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.navyCard,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Pending Sync',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade400,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.navyCard,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const AppIcon(svg: AppIcons.stackedBars, size: 20, color: AppColors.gray400),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Pending Sync',
+                                style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              // [NEW] Replaced hardcoded "42" with dynamic counter
-                              '${_apiService.unsyncedRecords}',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            // [NEW] Replaced hardcoded "42" with dynamic counter
+                            '${_apiService.unsyncedRecords}',
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Transactions queued for server upload',
-                              style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontSize: 14,
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Transactions queued for server upload',
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 40),

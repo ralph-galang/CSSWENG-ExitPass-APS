@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_header.dart';
-import '../services/mock_api_service.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameFocus = FocusNode();
   final _passwordFocus = FocusNode();
   
-  // Updated to initialize the mock service and state variables
-  final _apiService = MockApiService();
+  final _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -38,7 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Updated logic to simulate device validation and dummy authentication
+  // Device/site validation (the "Zero Trust" check) now happens
+  // server-side as part of POST /api/v1/auth/login -- see
+  // AuthService.deviceValidationService on the backend. An unrecognized
+  // device comes back as an UNRECOGNIZED_DEVICE error below, same as
+  // any other login failure.
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -46,18 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _errorMessage = null;
       });
 
-      // 1. Simulate Zero Trust Device Check
-      bool isDeviceValid = await _apiService.validateDeviceStatus();
-      if (!isDeviceValid) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = "Zero Trust Alert: Unrecognized device.";
-        });
-        return;
-      }
-
-      // Simulate Authentication
-      String? error = await _apiService.login(
+      String? error = await _authService.login(
         _usernameController.text, 
         _passwordController.text
       );
@@ -88,12 +80,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 64), 
-              Image.asset(
-                'lib/images/Professional Parking group Logo.jpg',
-                height: 90,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 32),
+              // Logo placeholder
+              const SizedBox(height: 128), 
+              const SizedBox(height: 48), 
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 384),
                 child: Form(
@@ -102,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Device ID: ${_apiService.deviceId}", 
+                        "Device ID: ${_authService.deviceId}", 
                         style: const TextStyle(color: Colors.grey, fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
