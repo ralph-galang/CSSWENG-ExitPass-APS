@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: exitpass-mops-backend
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+  profiles:
+    active: local
