@@ -95,6 +95,150 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 24),
 
+                    // ---------- Dashboard Counters ----------
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.activeParkingBg,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.gray200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Active Parking',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.activeParkingText,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    AppIcon(svg: AppIcons.clock, size: 18, color: AppColors.activeParkingText),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${_apiService.activeParkingSessions}',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.activeParkingText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.exitedParkingBg,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.gray200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Vehicles Exited',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.exitedParkingText,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    AppIcon(svg: AppIcons.history, size: 18, color: AppColors.exitedParkingText),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${_apiService.exitedParkingSessions}',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.exitedParkingText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.totalTransactionsBg,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.gray200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Total Transactions',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.totalTransactionsText,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    AppIcon(svg: AppIcons.ticket, size: 18, color: AppColors.totalTransactionsText),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${_apiService.totalTransactions}',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.totalTransactionsText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
                     // ---------- Pending Sync Card ----------
                     Container(
                       decoration: BoxDecoration(

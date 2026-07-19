@@ -27,9 +27,24 @@ class MockApiService {
     {'dateTime': '05/26/2026 - 8:47 PM', 'plate': 'LOL 2322'},
   ];
 
+  // Parking session summary data for the dashboard
+  final List<Map<String, String>> _activeSessions = [
+    {'dateTime': '05/26/2026 - 8:30 PM', 'plate': 'AAO 2311'},
+    {'dateTime': '05/26/2026 - 8:33 PM', 'plate': 'BAO 2501'},
+    {'dateTime': '05/26/2026 - 8:47 PM', 'plate': 'LOL 2322'},
+  ];
+
+  final List<Map<String, String>> _exitedSessions = [
+    {'dateTime': '05/26/2026 - 7:10 PM', 'plate': 'XZY 5410'},
+    {'dateTime': '05/26/2026 - 7:25 PM', 'plate': 'QWE 5678'},
+  ];
+
   List<Map<String, String>> get history => List.unmodifiable(_history);
   List<Map<String, String>> get syncQueue => List.unmodifiable(_syncQueue);
   int get unsyncedRecords => _syncQueue.length;
+  int get activeParkingSessions => _activeSessions.length;
+  int get exitedParkingSessions => _exitedSessions.length;
+  int get totalTransactions => activeParkingSessions + exitedParkingSessions;
 
   // Mock User Session
   String? currentUserRole;

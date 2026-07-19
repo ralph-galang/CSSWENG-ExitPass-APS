@@ -28,9 +28,16 @@ class AppColors {
   // Dark navy "Pending Sync" card (#111C2B)
   static const Color navyCard = Color(0xFF111C2B);
 
+  // Dashboard badge colors for active / exited / total counts
+  static const Color activeParkingBg = Color(0xFFE6FAEA);
+  static const Color activeParkingText = Color(0xFF1F5F28);
+  static const Color exitedParkingBg = Color(0xFFFCE8E8);
+  static const Color exitedParkingText = Color(0xFF7A1414);
+  static const Color totalTransactionsBg = Color(0xFFFEF5D4);
+  static const Color totalTransactionsText = Color(0xFF7A5F17);
+
   // Bottom-nav "active" pill styling (unified across screens; the mockups
   // use slightly different blues — D1E4FF / D1E5F7 / D3E3FD / d1e5ff — so
-  // one consistent value is used here for a cleaner design system).
   static const Color navActiveBg = Color(0xFFD1E5F7);
   static const Color navActiveText = Color(0xFF1E3A5F);
 
