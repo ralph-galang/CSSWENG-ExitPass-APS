@@ -15,8 +15,9 @@ class SettingsScreen extends StatelessWidget {
       case 1:
         Navigator.pushReplacementNamed(context, '/tickets');
         break;
-      case 2:
-        break; 
+      case 2:        Navigator.pushReplacementNamed(context, '/operational-logs');
+        break;
+      case 3:        break; 
     }
   }
 
@@ -53,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
       backgroundColor: AppColors.white,
       appBar: const AppHeader(triangleSize: 20),
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 2,
+        currentIndex: 3,
         onTap: (i) => _onNavTap(context, i),
       ),
       body: SafeArea(

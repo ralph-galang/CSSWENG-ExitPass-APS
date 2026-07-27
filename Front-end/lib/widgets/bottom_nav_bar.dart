@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'app_icons.dart';
 
-/// Bottom nav used across Dashboard / Tickets / Settings / Sync / Manual
+/// Bottom nav used across Dashboard / Tickets / Log / Settings / Sync / Manual
 /// Transaction / Ticket Detail screens. The active tab gets a light-blue
 /// pill background, matching the mockups' `bg-[#D1E5F7] rounded-full` style.
 class AppBottomNavBar extends StatelessWidget {
-  final int currentIndex; // 0 = Dashboard, 1 = Tickets, 2 = Settings
+  final int currentIndex; // 0 = Dashboard, 1 = Tickets, 2 = Log, 3 = Settings
   final ValueChanged<int> onTap;
 
   const AppBottomNavBar({
@@ -39,10 +39,16 @@ class AppBottomNavBar extends StatelessWidget {
             onTap: () => onTap(1),
           ),
           _NavItem(
-            label: 'Settings',
-            svg: AppIcons.settingsGear,
+            label: 'Log',
+            svg: AppIcons.log,
             isActive: currentIndex == 2,
             onTap: () => onTap(2),
+          ),
+          _NavItem(
+            label: 'Settings',
+            svg: AppIcons.settingsGear,
+            isActive: currentIndex == 3,
+            onTap: () => onTap(3),
           ),
         ],
       ),

@@ -28,6 +28,9 @@ class _ScanTicketScreenState extends State<ScanTicketScreen> {
       case 1:
         break; // already here
       case 2:
+        Navigator.pushReplacementNamed(context, '/operational-logs');
+        break;
+      case 3:
         Navigator.pushReplacementNamed(context, '/settings');
         break;
     }
