@@ -11,16 +11,26 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.10+1
   http: ^1.2.2
+  drift: ^2.20.0
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  sqlite3_flutter_libs: ^0.5.24
+  uuid: ^4.4.2
   # NOTE: google_fonts intentionally removed — it pulls in path_provider,
   # a plugin with native Windows code that requires Developer Mode /
   # symlink support to build. flutter_svg is pure Dart and has no such
   # requirement, so this project now builds on Windows desktop without
   # enabling Developer Mode.
+  # path_provider (and sqlite3_flutter_libs, same category of native
+  # plugin) is now a real dependency anyway, via lib/database/app_database.dart
+  # — see that file's WINDOWS BUILD NOTE doc comment.
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  drift_dev: ^2.20.0
 
 flutter:
   uses-material-design: true

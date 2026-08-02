@@ -20,21 +20,22 @@ part 'app_database.g.dart';
 /// Local Drift database.
 ///
 /// SCOPE NOTE: the Priority 3 "Incident & Exception Management" and
-/// "Manual Operation Support" epics are modeled here, plus a placeholder
-/// for Priority 2's "Continuity Transaction Capture" (`ContinuityTransactions`)
-/// since the other four tables all soft-reference a transaction ID and
-/// otherwise had nothing to point at. Like the enums elsewhere in this
-/// project, `ContinuityTransactions` is OUR placeholder ahead of the
-/// client's schema, not a confirmed design — see the doc comment on that
-/// class for what's least confident about it (the payment-related
-/// columns).
+/// "Manual Operation Support" epics are modeled here, plus
+/// `ContinuityTransactions` for Priority 2's "Continuity Transaction
+/// Capture" — including, as of schema v2, the BCP exit-checkout flow
+/// (Epic 5 continuity payment capture during a scan/enter-ticket exit).
+/// Like the enums elsewhere in this project, `ContinuityTransactions` is
+/// OUR placeholder ahead of the client's schema, not a confirmed design —
+/// see the doc comment on that class for what's least confident about it
+/// (the payment-related columns).
 ///
 /// Device Identity and Parking Session tables are still intentionally
-/// NOT included — the client hasn't provided the session schema, and
-/// Device Identity should land together with it rather than being
-/// guessed at separately. Add them to the `tables:` list below once that
-/// schema arrives; nothing here needs to change structurally to
-/// accommodate that.
+/// NOT included as *local* tables — parking session data lives only in
+/// the backend's Projections DB and is looked up over the network per the
+/// architecture note in V3__add_projections_schema_simulation.sql, never
+/// mirrored on-device. `ContinuityTransactions.ticketNumber` /
+/// `.qrPayload` are the local pointer back to that remote session, not a
+/// local copy of it.
 ///
 /// WINDOWS BUILD NOTE — please read before running `flutter pub get`:
 /// pubspec.yaml has an existing comment explaining that `google_fonts`
@@ -66,8 +67,13 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  /// v1 -> v2: added `ticketNumber` and `qrPayload` to
+  /// `ContinuityTransactions`, for the BCP exit-checkout sync workflow.
+  /// Both are nullable `TextColumn`s, so this is a plain additive
+  /// `ALTER TABLE ... ADD COLUMN` — no backfill needed, no data loss risk
+  /// for existing rows from other continuity flows.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   /// SQLite has foreign key enforcement OFF by default, even for tables
   /// declared with a `references()` constraint (Incidents/ExceptionTags/
@@ -76,6 +82,17 @@ class AppDatabase extends _$AppDatabase {
   /// bad inserts would succeed instead of failing.
   @override
   MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(
+                continuityTransactions, continuityTransactions.ticketNumber);
+            await m.addColumn(
+                continuityTransactions, continuityTransactions.qrPayload);
+          }
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },

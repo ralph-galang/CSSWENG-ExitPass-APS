@@ -41,6 +41,21 @@ import 'incident_tables.dart' show LocalSyncStatus, LocalSyncStatusConverter;
 /// display is called out as a distinct, later concern in Epic 10. Collapsing
 /// them into a single "backend status" column would make it impossible to
 /// show both independently, which the AC requires.
+///
+/// SCHEMA v2 ADDITION — BCP exit-checkout linkage:
+/// [ticketNumber] / [qrPayload] were added specifically for the "Exit
+/// Transactions and Sync" workflow. That flow looks up a parking session
+/// in the external Projections DB (see BRD architecture note in
+/// V3__add_projections_schema_simulation.sql — Projections DB is a
+/// backend-side Postgres schema, queried over the network, never mirrored
+/// on-device), takes a dummy payment, and saves the result here so it can
+/// be synced back later. The sync step needs *something* to tell the
+/// backend which `projections.parking_sessions` row to update — plate
+/// number alone isn't guaranteed unique/available, so the ticket number
+/// (or QR payload, when scanned rather than typed) is what's carried.
+/// Both nullable: rows created for other continuity flows (manual
+/// transaction capture unrelated to a parking session lookup) simply
+/// won't have one.
 @DataClassName('ContinuityTransaction')
 class ContinuityTransactions extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -63,6 +78,21 @@ class ContinuityTransactions extends Table {
   TextColumn get siteId => text()();
   TextColumn get lane => text()();
 
+  /// The ticket number typed/looked up on the Scan/Enter Ticket screen.
+  /// Soft reference to `projections.parking_sessions.ticket_number` on the
+  /// backend (cross-database — cannot be a real FK). Required by the sync
+  /// step to know which session's `time_out` / `payment_status` to update.
+  /// Nullable because not every continuity transaction originates from a
+  /// parking-session lookup.
+  TextColumn get ticketNumber => text().nullable()();
+
+  /// The raw QR payload, when the operator scanned rather than typed the
+  /// ticket. Kept alongside [ticketNumber] (rather than only storing one)
+  /// because the backend lookup accepts either, and the local record
+  /// should preserve which one the operator actually used, for audit
+  /// purposes.
+  TextColumn get qrPayload => text().nullable()();
+
   /// When the transaction actually happened, as distinct from
   /// [createdAt] (when the local row was written). The split matters
   /// here specifically because Epic 6 requires offline capture: a
@@ -76,7 +106,9 @@ class ContinuityTransactions extends Table {
   /// Stored as minor units (e.g. cents) rather than a float to avoid
   /// rounding issues; nullable because the mock Payment Orchestrator
   /// interface's actual field shape hasn't been confirmed against this
-  /// yet.
+  /// yet. For the BCP exit-checkout flow specifically, this is always a
+  /// dummy/fixed value — no rate or elapsed-time calculation happens on
+  /// device, per the current scope of that feature.
   IntColumn get amountMinorUnits => integer().nullable()();
   TextColumn get currencyCode => text().nullable()();
 
