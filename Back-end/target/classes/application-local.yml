@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/exitpass_mops_local
+    username: exitpass
+    password: exitpass_local_dev_only
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway migrations, not Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: identity
+        format_sql: true
+
+  flyway:
+    enabled: true
+    schemas: identity,sites,reconciliation
+    default-schema: identity
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Local-only JWT signing secret. Do not reuse anywhere near real
+# environments -- replace with a properly managed secret before this
+# config is ever pointed at a non-local database.
+app:
+  jwt:
+    secret: "local-dev-only-secret-change-before-any-non-local-use-please"
+    expiration-minutes: 60
