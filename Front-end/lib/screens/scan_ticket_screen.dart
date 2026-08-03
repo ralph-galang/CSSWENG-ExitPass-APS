@@ -3,6 +3,10 @@ import '../theme/app_colors.dart';
 import '../widgets/app_header.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../config/api_config.dart';
+import '../database/app_database.dart';
+import '../services/exit_checkout_service.dart';
+import '../screens/ticket_detail_screen.dart';
 
 class ScanTicketScreen extends StatefulWidget {
   const ScanTicketScreen({super.key});
@@ -13,11 +17,68 @@ class ScanTicketScreen extends StatefulWidget {
 
 class _ScanTicketScreenState extends State<ScanTicketScreen> {
   final _ticketController = TextEditingController();
+  late final ExitCheckoutService _checkoutService;
+  bool _isLookingUp = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // AppDatabase() returns the shared singleton -- see app_database.dart --
+    // so this doesn't open a second connection to the same sqlite file.
+    _checkoutService = ExitCheckoutService(
+      db: AppDatabase(),
+      baseUrl: Uri.parse(ApiConfig.baseUrl),
+    );
+  }
 
   @override
   void dispose() {
     _ticketController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleEnterTicket() async {
+    final ticketNumber = _ticketController.text.trim();
+    if (ticketNumber.isEmpty) {
+      setState(() => _errorMessage = 'Enter a ticket number.');
+      return;
+    }
+
+    setState(() {
+      _isLookingUp = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final result =
+          await _checkoutService.lookupSession(ticketNumber: ticketNumber);
+
+      if (!mounted) return;
+      setState(() => _isLookingUp = false);
+
+      Navigator.pushNamed(
+        context,
+        '/ticket-detail',
+        arguments: TicketDetailArgs(
+          lookupResult: result,
+          ticketNumber: ticketNumber,
+        ),
+      );
+    } on ParkingSessionNotFoundException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLookingUp = false;
+        _errorMessage = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLookingUp = false;
+        _errorMessage =
+            'Could not reach the server. Check your connection and try again.';
+      });
+    }
   }
 
   void _onNavTap(BuildContext context, int index) {
@@ -28,6 +89,9 @@ class _ScanTicketScreenState extends State<ScanTicketScreen> {
       case 1:
         break; // already here
       case 2:
+        Navigator.pushReplacementNamed(context, '/operational-logs');
+        break;
+      case 3:
         Navigator.pushReplacementNamed(context, '/settings');
         break;
     }
@@ -50,6 +114,12 @@ class _ScanTicketScreenState extends State<ScanTicketScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ---------- QR scanner placeholder frame ----------
+              // NOTE: this is still a visual placeholder -- no camera
+              // package is wired in, so only the manual ticket-number path
+              // below actually calls the backend. Scanning would need a
+              // package like mobile_scanner added and its result passed to
+              // ExitCheckoutService.lookupSession(qrPayload: ...) the same
+              // way ticketNumber is below.
               AspectRatio(
                 aspectRatio: 1,
                 child: DottedBorderContainer(
@@ -115,25 +185,41 @@ class _ScanTicketScreenState extends State<ScanTicketScreen> {
               ),
               const SizedBox(height: 16),
 
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+
               // ---------- Action buttons ----------
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/ticket-detail');
-                  },
+                  onPressed: _isLookingUp ? null : _handleEnterTicket,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.black,
                     foregroundColor: AppColors.white,
+                    disabledBackgroundColor: AppColors.black,
+                    disabledForegroundColor: AppColors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
-                  child: const Text(
-                    'Enter Ticket',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isLookingUp
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                              color: AppColors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Enter Ticket',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
               const SizedBox(height: 12),

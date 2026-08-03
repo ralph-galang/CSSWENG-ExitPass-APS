@@ -118,4 +118,10 @@ class AppIcons {
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="black">
   <path d="M0 0h30v10H10v20H0V0zm70 0h30v30h-10V10H70V0zM0 70h10v20h20v10H0V70zm100 30H70v-10h20V70h10v30zM20 20h20v20H20V20zm40 0h20v20H60V20zm0 40h20v20H60V60zM45 45h10v10H45v-10zM30 60h10v10H30v-10zm10 10h10v10H40v-10zm10-10h10v10H50v-10z"/>
 </svg>''';
+
+  // Log icon (Operational Logs)
+  static const log = '''
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <path d="M9 12h6m-6 4h6M9 8h6m-8-2h12a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>''';
 }

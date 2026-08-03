@@ -19,4 +19,11 @@ class ApiConfig {
 /// stand-in until then.
 class DeviceConfig {
   static const String deviceCode = 'MOPS-DEVICE-TEST-001';
+
+  /// Placeholder exit lane, same "hardcoded stand-in" situation as
+  /// [deviceCode] -- AuthSession carries siteCode but not a specific
+  /// lane, and real lane selection (e.g. multi-lane sites, operator
+  /// picks one at shift start) isn't built yet. Matches
+  /// sites.lanes.lane_code = 'TEST-LANE-EXIT-01' in the seed data.
+  static const String lane = 'TEST-LANE-EXIT-01';
 }

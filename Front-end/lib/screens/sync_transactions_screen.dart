@@ -5,6 +5,9 @@ import '../widgets/app_icons.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/transaction_list_item.dart';
 import '../services/mock_api_service.dart';
+import '../config/api_config.dart';
+import '../database/app_database.dart';
+import '../services/exit_transaction_sync_service.dart';
 
 class SyncTransactionsScreen extends StatefulWidget {
   const SyncTransactionsScreen({super.key});
@@ -15,7 +18,17 @@ class SyncTransactionsScreen extends StatefulWidget {
 
 class _SyncTransactionsScreenState extends State<SyncTransactionsScreen> {
   final _apiService = MockApiService();
+  late final ExitTransactionSyncService _exitSyncService;
   bool _isSyncing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _exitSyncService = ExitTransactionSyncService(
+      db: AppDatabase(),
+      baseUrl: Uri.parse(ApiConfig.baseUrl),
+    );
+  }
 
   void _onNavTap(BuildContext context, int index) {
     switch (index) {
@@ -26,6 +39,9 @@ class _SyncTransactionsScreenState extends State<SyncTransactionsScreen> {
         Navigator.pushReplacementNamed(context, '/tickets');
         break;
       case 2:
+        Navigator.pushReplacementNamed(context, '/operational-logs');
+        break;
+      case 3:
         Navigator.pushReplacementNamed(context, '/settings');
         break;
     }
@@ -38,7 +54,18 @@ class _SyncTransactionsScreenState extends State<SyncTransactionsScreen> {
       _isSyncing = true;
     });
 
-    await _apiService.syncAll();
+    // Real sync (BCP exit-checkout transactions in the local Drift DB) and
+    // the existing mock sync (other transaction types, still unwired to a
+    // real backend) run side by side here rather than one replacing the
+    // other -- they're pushing genuinely different data. Errors from the
+    // real sync are swallowed deliberately: syncPendingExitTransactions()
+    // already leaves failed/offline rows as `pending` for the next pass
+    // rather than throwing, so there's nothing actionable to surface here
+    // beyond what the next sync attempt will retry automatically.
+    await Future.wait([
+      _exitSyncService.syncPendingExitTransactions(),
+      _apiService.syncAll(),
+    ]);
 
     if (mounted) {
       setState(() {

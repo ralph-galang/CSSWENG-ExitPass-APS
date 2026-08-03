@@ -24,6 +24,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Navigator.pushReplacementNamed(context, '/tickets');
         break;
       case 2:
+        Navigator.pushReplacementNamed(context, '/operational-logs');
+        break;
+      case 3:
         Navigator.pushReplacementNamed(context, '/settings');
         break;
     }

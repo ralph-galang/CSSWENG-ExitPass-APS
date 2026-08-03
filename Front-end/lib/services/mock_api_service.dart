@@ -1,4 +1,6 @@
 import 'dart:async';
+import '../models/incident_log.dart';
+import '../models/manual_gate_log.dart';
 
 class MockApiService {
   static final MockApiService _instance = MockApiService._internal();
@@ -39,8 +41,62 @@ class MockApiService {
     {'dateTime': '05/26/2026 - 7:25 PM', 'plate': 'QWE 5678'},
   ];
 
+  // Sample operational logs data for testing persistence
+  final List<IncidentLog> _incidents = [
+    IncidentLog(
+      id: '1',
+      recordId: 'rec-incident-001',
+      category: IncidentCategory.powerOutage,
+      description: 'Power outage in Lane A detected at 2:30 PM. System switched to continuity mode.',
+      timestamp: DateTime(2026, 5, 26, 14, 30),
+      operatorId: 'ralph',
+      deviceId: 'MOPS-DEV-001',
+      siteId: 'MNT-A',
+      synced: true,
+    ),
+    IncidentLog(
+      id: '2',
+      recordId: 'rec-incident-002',
+      category: IncidentCategory.systemDown,
+      description: 'Main system became unavailable. Switched to offline mode to maintain operations.',
+      timestamp: DateTime(2026, 5, 26, 15, 45),
+      operatorId: 'ralph',
+      deviceId: 'MOPS-DEV-001',
+      siteId: 'MNT-A',
+      synced: false,
+    ),
+  ];
+
+  final List<ManualGateLog> _manualGateLogs = [
+    ManualGateLog(
+      id: '1',
+      recordId: 'rec-manual-001',
+      reasonCode: ManualActionReasonCode.powerOutage,
+      justificationText: 'Manually opened exit gate due to power outage. Customer needed to exit.',
+      timestamp: DateTime(2026, 5, 26, 14, 35),
+      operatorId: 'ralph',
+      deviceId: 'MOPS-DEV-001',
+      siteId: 'MNT-A',
+      synced: true,
+    ),
+    ManualGateLog(
+      id: '2',
+      recordId: 'rec-manual-002',
+      reasonCode: ManualActionReasonCode.maintenance,
+      justificationText: 'Opened entry gate for maintenance crew. System under routine maintenance.',
+      timestamp: DateTime(2026, 5, 26, 16, 20),
+      operatorId: 'ralph',
+      deviceId: 'MOPS-DEV-001',
+      siteId: 'MNT-A',
+      synced: false,
+    ),
+  ];
+
   List<Map<String, String>> get history => List.unmodifiable(_history);
   List<Map<String, String>> get syncQueue => List.unmodifiable(_syncQueue);
+  List<IncidentLog> get incidents => List.from(_incidents);
+  List<ManualGateLog> get manualGateLogs => List.from(_manualGateLogs);
+  
   int get unsyncedRecords => _syncQueue.length;
   int get activeParkingSessions => _activeSessions.length;
   int get exitedParkingSessions => _exitedSessions.length;
@@ -81,6 +137,16 @@ class MockApiService {
   void addTransaction(Map<String, String> transaction) {
     _history.insert(0, transaction);
     _syncQueue.insert(0, transaction);
+  }
+
+  // Adds a new incident log
+  void addIncident(IncidentLog incident) {
+    _incidents.insert(0, incident);
+  }
+
+  // Adds a new manual gate log
+  void addManualGateLog(ManualGateLog log) {
+    _manualGateLogs.insert(0, log);
   }
 
   // Clears only the sync queue
