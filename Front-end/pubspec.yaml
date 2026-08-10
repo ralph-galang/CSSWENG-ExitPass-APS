@@ -1,0 +1,41 @@
+name: parking_ops_app
+description: Parking Operations - Flutter conversion of HTML/Tailwind mockups.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10+1
+  http: ^1.2.2
+  uuid: ^4.0.0
+  intl: ^0.19.0
+  # NOTE: google_fonts intentionally removed — it pulls in path_provider,
+  # a plugin with native Windows code that requires Developer Mode /
+  # symlink support to build. flutter_svg is pure Dart and has no such
+  # requirement, so this project now builds on Windows desktop without
+  # enabling Developer Mode.
+  #
+  # UPDATE: path_provider is back, via drift below (see app_database.dart's
+  # WINDOWS BUILD NOTE for what this means for Windows desktop builds —
+  # test `flutter run -d windows` after `pub get` before relying on it).
+  drift: ^2.34.2
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  sqlite3_flutter_libs: ^0.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  drift_dev: ^2.34.5
+  build_runner: ^2.4.11
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - lib/images/Professional Parking group Logo.jpg
